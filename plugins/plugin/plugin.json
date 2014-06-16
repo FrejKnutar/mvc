@@ -1,0 +1,7 @@
+{
+    "name": "Plugin",
+    "author": "Frej Knutar",
+    "description": "Plugin base class.",
+    "version": "1.0",
+    "requirements": []
+}

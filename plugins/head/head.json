@@ -1,0 +1,7 @@
+{
+    "name": "Head",
+    "author": "Frej Knutar",
+    "description": "Easy management of CSS, JavaScript and meta tags in your HTML head tag.",
+    "version": "1.0",
+    "requirements": []
+}
