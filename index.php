@@ -1,6 +1,36 @@
 <?php
-
 require_once("initialization.php");
+/**
+ * Replace the first occurrencee of the search string with the replacement 
+ * string.
+ * @param string $search <p>
+ * The value being searched for, otherwise known as the needle.
+ * </p>
+ * @param string $replace <p>
+ * The replacement value that replaces found <i>search</i> values.
+ * </p>
+ * @param string $subject <p>
+ * The string being searched and replaced on, otherwise known as the haystack.
+ * </p>
+ * </p>
+ * @return string This function returns the string with the replaced value.
+ */
+function str_replace_first($search, $replace, $subject) {
+    $pos = strpos($subject, $search);
+    if ($pos !== false) {
+        return substr_replace($subject, $replace, $pos, strlen($search));
+    }
+    return $subject;
+}
+/**
+ * Removes the first occurence of the search string.
+ * @param string $haystack The string being searched and removed from.
+ * @param string $needle The value being searched from.
+ * @return string This function returnes the string the removed value.
+ */
+function str_remove_first($haystack, $needle) {
+    return str_replace_first($needle, '', $haystack);
+}
 
 /**
  * Loads and initializes a plugin. Plugins are located in the plugin-folder
@@ -94,14 +124,9 @@ abstract class Controller {
     private static $viewdir = "views";
 
     /**
-     * @var string The web address to this document.
-     */
-    private static $home = null;
-
-    /**
      * @var string The file path to this document.
      */
-    private static $root = null;
+    protected static $root = null;
 
     /**
      * Initializes the controller base and sets the class parameters.
@@ -109,14 +134,6 @@ abstract class Controller {
     private static function init() {
         self::$root = dirname(__FILE__);
         $docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
-        if (DIRECTORY_SEPARATOR === '/') {
-            self::$home = str_replace($docRoot, "", self::$root);
-        } else {
-            self::$home = str_replace(
-                    $docRoot, "", str_replace(self::$root, "\\", '/')
-            );
-        }
-        self::$home .= '/';
     }
 
     /**
@@ -157,13 +174,15 @@ abstract class Controller {
      * @throws Exception Throws an exception if the view does not exist.
      */
     protected function loadView($name, array $array = array()) {
-        if (self::$home == null || self::$root == null) {
+        if (self::$root == null) {
             self::init();
         }
         $d = DIRECTORY_SEPARATOR;
-        $path = self::$root . $d . $this->viewdir . $d . $name . ".php";
+        $path = self::$root . $d . self::$viewdir . $d . $name . ".php";
         if (file_exists($path)) {
-            extract($array);
+            if (!empty($array)) {
+                extract($array);
+            }
             include($path);
         } else {
             throw new Exception("View '$name' does not exist.");
@@ -172,20 +191,36 @@ abstract class Controller {
 
 }
 
-$docRoot = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT');
-$reqUri = filter_input(INPUT_SERVER, 'REQUEST_URI');
-if ($docRoot != null && $reqUri != null) {
-    $argv = array(0 => null, 1 => null);
-    $argv[0] = '/';
-    if (DIRECTORY_SEPARATOR == '/') {
-        $argv[0] .= str_replace($docRoot, "", __FILE__);
-    } else {
-        $argv[0] .= str_replace($docRoot, "", str_replace('\\', '/', __FILE__));
-    }
-    $argv[1] = str_replace($argv, "", $reqUri);
-    unset($docRoot);
-    unset($reqUri);
+$argv = array();
+if (DIRECTORY_SEPARATOR == '/') {
+    $argv[0] = str_remove_first(
+        __FILE__, 
+        filter_input(INPUT_SERVER, 'DOCUMENT_ROOT')
+    );
+} else {
+    $argv[0] = str_remove_first(
+        str_replace(
+            '\\', 
+            '/', 
+            __FILE__
+        ),
+        filter_input(INPUT_SERVER, 'DOCUMENT_ROOT')
+    );
 }
+if ($argv[0]{0} != '/') {
+    $argv[0] = '/' . $argv[0];
+}
+define(
+    "HOME",
+    'http'  . (filter_input(INPUT_SERVER, "HTTPS") == "on" ? "s" : '')
+        . "://" . filter_input(INPUT_SERVER, "SERVER_NAME") . 
+    (filter_input(INPUT_SERVER, "SERVER_PORT") != 80 ? filter_input(INPUT_SERVER, "SERVER_PORT") : '')
+        . $argv[0]
+);
+$argv[1] = str_remove_first(
+    filter_input(INPUT_SERVER, 'REQUEST_URI'), 
+    $argv[0]
+);
 
 if (isset($argv)) {
     $arguments = array();

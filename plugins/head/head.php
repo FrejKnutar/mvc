@@ -18,9 +18,8 @@ abstract class Head
     static function add($fileName, $attributes = array()) {
         if (!filter_var($fileName, FILTER_VALIDATE_URL)) {
             $trace = debug_backtrace();
-            $path = str_replace(
+            $path = str_remove_first(
                 filter_input(INPUT_SERVER, "SERVER_ROOT"),
-                '',
                 dirname($trace[0]['file'])
             );
             if (DIRECTORY_SEPARATOR == '\\') {
