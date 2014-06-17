@@ -1,5 +1,4 @@
 <?php
-use mysqli;
 class Plugin
 {
     private $connection;
@@ -8,14 +7,6 @@ class Plugin
     function __construct(mysqli $connection) {
         $this->connection = $connection;
         $this->init();
-    }
-    
-    protected function __get($name) {
-        return $this->getVar($name);
-    }
-    
-    protected function __set($name, $value) {
-        return $this->setVar($name, $value);
     }
     
     public static function install(mysqli $connection) {
