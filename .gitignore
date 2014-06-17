@@ -31,3 +31,6 @@
 *.blg
 *.log
 *.synctex.gz
+
+#Database connection
+mysqlconnector.php

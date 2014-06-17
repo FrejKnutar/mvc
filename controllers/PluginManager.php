@@ -2,6 +2,7 @@
 requirePlugin("head");
 requirePlugin("tag");
 requirePlugin("formtag");
+requirePlugin("pllugin");
 class PluginManager extends Controller {
     public function __construct() {
         parent::__construct();

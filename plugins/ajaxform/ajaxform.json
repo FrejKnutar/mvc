@@ -1,0 +1,7 @@
+{
+    "name": "AJAX HTML Form",
+    "author": "Frej Knutar",
+    "description": "AJAX HTML forms made easy.",
+    "version": "1.0",
+    "requirements": [{"name": "head"}]
+}

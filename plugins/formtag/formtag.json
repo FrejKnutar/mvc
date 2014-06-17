@@ -1,7 +1,0 @@
-{
-    "name": "Form Tag",
-    "author": "Frej Knutar",
-    "description": "AJAX forms made easy.",
-    "version": "1.0",
-    "requirements": [{"name": "tag"}]
-}
