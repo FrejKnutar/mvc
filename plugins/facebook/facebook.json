@@ -1,0 +1,7 @@
+{
+    "name": "Facebook",
+    "author": "Frej Knutar",
+    "description": "Retrieves data from an facebook account or page.",
+    "version": "1.0",
+    "requirements": [{"name": "head"}, {"name": "plugin"}]
+}

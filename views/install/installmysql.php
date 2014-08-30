@@ -179,6 +179,9 @@
             background: #1e2506;
             cursor: pointer;
         }
+        .error {
+            color: #AA0000;
+        }
     </style>
 </head>
 <body>
@@ -217,40 +220,75 @@
             <form method="POST" 
                 <?php if(isset($action)) echo "action=\"$action\"";?>>
                 <fieldset>
+                    <?php $key = 'mysql';
+                    if (isset($errors[$key])):
+                        ?><ol>
+                            <li class="error"><?php echo $errors[$key]; ?></li>
+                        </ol>
+                    <?php endif; ?>
                     <legend>Database</legend>
                     <ol>
                         <li>
-                            <label for="host">Host address</label><input name="host" type="text" placeholder="Host address" required autofocus value="localhost">
+                            <label for="host">Host address</label><input name="host" type="text" placeholder="Host address" required autofocus value="<?php echo isset($host) ? $host : "localhost"; ?>">
                         </li>
-                        <li>
-                            <label for="database">Database</label><input name="database" type="text" placeholder="Database" required value="mvc">
+                        <?php $key = 'host';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif;
+                        ?><li>
+                            <label for="database">Database</label><input name="database" type="text" placeholder="Database" required value="<?php echo isset($database) ? $database : "mvc"; ?>">
                         </li>
-                        <li>
-                            <label for="prefix">Table prefix</label><input name="prefix" type="text" required value="mvc_">
+                        <?php $key = 'database';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif;
+                        ?><li>
+                            <label for="prefix">Table prefix</label><input name="prefix" type="text" value="<?php echo isset($prefix) ? $prefix : "mvc_"; ?>">
                         </li>
-                        <li>
-                            <label for="port">Port</label><input name="port" type="number" placeholder="Port" value="3306" required>
+                        <?php $key = 'prefix';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif;
+                        ?><li>
+                            <label for="port">Port</label><input name="port" type="number" placeholder="Port" requried value="<?php echo isset($port) ? $port : "3306"; ?>">
                         </li>
+                        <?php $key = 'port';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif; ?>
                     </ol>
                 </fieldset>
                 <fieldset>
                     <legend>Database user</legend>
                     <ol>
                         <li>
-                            <label for="user">User</label><input name="user" type="text" placeholder="Username" required value="root">
+                            <label for="user">User</label><input name="user" type="text" placeholder="Username" required value="<?php echo isset($user) ? $user : "root"; ?>">
                         </li>
-                        <li>
+                        <?php $key = 'user';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif;
+                        ?><li>
                             <label for="password">Password</label><input name="password" type="password" placeholder="Password">
                         </li>
+                        <?php $key = 'password';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif;
+                        ?>
                     </ol>
                 </fieldset>
                 <fieldset>
                     <legend>Database user for the plugin manager</legend>
                     <ol>
                         <li>
-                            <label for="pluginuser">Username</label><input name="pluginuser" type="text" required value="plugin">
+                            <label for="pluginuser">Username</label><input name="pluginuser" type="text" required value="<?php echo isset($pluginUser) ? $pluginUser : "plugin"; ?>">
                         </li>
-                        <li>
+                        <?php $key = 'pluginUser';
+                        if (isset($errors[$key])):
+                            ?><li class="error"><?php echo $errors[$key]; ?></li>
+                        <?php endif;
+                        ?><li>
                             <label for="pluginpass">Password</label><input name="pluginpass" type="password" placeholder="Plugin Password">
                         </li>
                         <li>

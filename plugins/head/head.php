@@ -10,30 +10,47 @@ abstract class Head
     private static $charset = NULL;
     private static $meta = array();
     private static $httpEquiv = array();
+    private static $tagTypes = array();
+    private static $tags = array();
     
     static function addExtension($ext, $closure) {
-        self::$extensions[$ext] = $closure;
+        if (is_callable($closure)) {
+            self::$extensions[$ext] = $closure;
+            return true;
+        }
+        return false;
     }
     
-    static function add($fileName, $attributes = array()) {
-        if (!filter_var($fileName, FILTER_VALIDATE_URL)) {
-            $trace = debug_backtrace();
-            $path = str_remove_first(
-                filter_input(INPUT_SERVER, "SERVER_ROOT"),
-                dirname($trace[0]['file'])
-            );
-            if (DIRECTORY_SEPARATOR == '\\') {
-                $path = str_replace('\\', '/', $path);
-                $fileName = str_replace('\\', '/', $fileName);
-            }
-            if (substr($path, -1) != '/') {
-                $path .= '/';
-            }
-            $path = HOME . '/' . $path . $fileName;
-            self::$includes[$path] = $attributes;
+    static function add($file, $attributes = array()) {
+        self::$includes[$file] = $attributes;
+    }
+    
+    static function tag($tag, $content, array $arguments = array()) {
+        if (empty($arguments)) {
+            $value = array($content);
         } else {
-            self::$includes[$fileName] = $attributes;
+            $value = array($content, $arguments);
         }
+        if (!isset(self::$tags[$tag])) {
+            self::$tags[$tag] = array($value);
+        } else {
+            self::$tags[$tag][] = $value;
+        }
+    }
+    
+    static function __callStatic($name, $arguments) {
+        if (!empty($arguments)) {
+            $content = array_shift($arguments);
+            self::tag($name, $content, $arguments);
+        }
+    }
+    
+    static function addTag($tag, $closure) {
+        if (is_callable($closure)) {
+            self::$tagTypes[$tag] = $closure;
+            return true;
+        }
+        return false;
     }
     
     static function meta($param1, $param2, $param3=NULL) {
@@ -61,7 +78,7 @@ abstract class Head
     static function output($echo = true) {
         $str = '';
         if (self::$charset != NULL) {
-            $str .= '<charset=' . self::$charset . ">";
+            $str .= '<meta charset="' . self::$charset . '">';
         }
         foreach (self::$httpEquiv as $key => $val) {
             $str .= "<meta http-equiv=\"$key\"";
@@ -79,7 +96,7 @@ abstract class Head
                 $str .= " content=\"$val\">";
             }
         }
-        foreach (self::$includes as $key=>$val) {
+        foreach (self::$includes as $key => $val) {
             if (is_string(strstr($key, '?'))) {
                 $ext = substr(strrchr(strstr($key, '?'), '.'), 1);
             } else {
@@ -88,6 +105,15 @@ abstract class Head
             if (array_key_exists($ext, self::$extensions)) {
                 $params = empty($val) ? array($key) : array($key, $val);
                 $str .= call_user_func_array(self::$extensions[$ext], $params);
+            }
+        }
+        foreach (self::$tags as $type => $tagArray) {
+            if (!array_key_exists($type, self::$tagTypes)) {
+                continue;
+            }
+            $closure = self::$tagTypes[$type];
+            foreach ($tagArray as $tag) {
+                $str .= call_user_func_array($closure, $tag);
             }
         }
         if ($echo) {
@@ -109,12 +135,38 @@ Head::addExtension(
 );
 Head::addExtension(
     "css", 
-    function($href, $arguments = array("rel"=>"stylesheet", "type"=>"text/css")) {
+    function($href, $arguments = array("rel" => "stylesheet", "type" => "text/css")) {
         $str = "<link";
-        foreach ($arguments as $name=>$value) {
+        foreach ($arguments as $name => $value) {
             $str .= " $name=\"$value\"";
         }
-        $str .= "href=\"$href\"";
+        $str .= " href=\"$href\">";
         return $str;
+    }
+);
+Head::addTag(
+    'title',
+    function($title) {
+        return $title;
+    }
+);
+Head::addTag(
+    'style',
+    function($css, array $arguments = array("type" => "text/css")) {
+        $str = "<style";
+        foreach ($arguments as $name => $value) {
+            $str .= " $name=\"$value\"";
+        }
+        return $str . ">$css</style>";
+    }
+);
+Head::addTag(
+    'script',
+    function($js, array $arguments = array("type" => "text/javascript")) {
+        $str = "<script";
+        foreach ($arguments as $name => $value) {
+            $str .= " $name=\"$value\"";
+        }
+        return $str . ">$js</script>";
     }
 );

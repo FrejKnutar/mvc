@@ -1,0 +1,7 @@
+{
+    "name": "Spotify",
+    "author": "Frej Knutar",
+    "description": "Retrieves data from the spotify web API.",
+    "version": "1.0",
+    "requirements": [{"name": "head"}, {"name": "plugin"}]
+}
